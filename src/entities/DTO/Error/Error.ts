@@ -1,0 +1,3 @@
+class ErrorMsg {
+    errorMsg: string = '';
+}

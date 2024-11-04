@@ -1,0 +1,17 @@
+.custom-image {
+    height: 300px; /* Altura fija deseada */
+    object-fit: cover; /* Esto asegura que la imagen se ajuste al contenedor manteniendo la proporción */
+    margin: auto; /* Centramos la imagen horizontalmente */
+}
+
+.carousel-item {
+    justify-content: center;
+    align-items: center;
+    text-align: center; /* Centra el contenido dentro del ítem */
+}
+
+.button {
+    position: relative;
+    z-index: 10;
+    transform: translatey(-100px);
+}

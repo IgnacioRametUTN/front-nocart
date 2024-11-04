@@ -1,0 +1,59 @@
+.sidebar {
+    transition: transform 1.3s ease;
+    overflow: hidden;
+    height: 100%; /* Asegura que el sidebar use todo el alto de la pantalla */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 90px; /* Default collapsed width */
+}
+
+.sidebar.collapsed {
+    width: 90px;
+}
+
+.sidebar.expanded {
+    width: 200px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+}
+
+.nav-text {
+    display: none;
+    transition: opacity 0.3s;
+}
+
+.sidebar.expanded .nav-text {
+    display: inline;
+    opacity: 1;
+    margin-left: 10px;
+}
+
+.sidebar.collapsed .nav-text {
+    display: none;
+}
+
+.submenu {
+    padding-left: 20px;
+}
+
+.submenu .nav-item {
+    padding-left: 10px;
+}
+
+.sidebar .logo {
+    margin-left: -20px; /* Ajusta el margen izquierdo del logo */
+}
+
+.nav {
+    flex-grow: 1; /* Hace que la lista de navegación ocupe todo el espacio disponible */
+}
+
+
+
+.mt-auto {
+    margin-top: auto; /* Alinea los elementos al fondo del sidebar */
+}
