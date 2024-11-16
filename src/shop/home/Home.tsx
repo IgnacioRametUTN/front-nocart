@@ -9,15 +9,15 @@ import { Categoria } from "../../entities/DTO/Categoria/Categoria";
 import { CategoriaService } from "../../services/CategoriaService";
 import { ProductServices } from "../../services/ProductServices";
 import { ArticuloManufacturado } from "../../entities/DTO/Articulo/ManuFacturado/ArticuloManufacturado";
-import { useCart } from "../carrito/ContextCarrito";
-import Carrito from "../carrito/carrito";
+//import { useCart } from "../carrito/ContextCarrito";
+//import Carrito from "../carrito/carrito";
 import ArticuloInsumoService from "../../services/ArticuloInsumoService";
 import { Articulo } from "../../entities/DTO/Articulo/Articulo";
-import { Cart, CartFill } from "react-bootstrap-icons";
+//import { Cart, CartFill } from "react-bootstrap-icons";
 import { Promocion } from "../../entities/DTO/Promocion/Promocion";
 import { PromocionService } from "../../services/PromocionService";
 import { useAuth0Extended } from "../../Auth/Auth0ProviderWithNavigate";
-import LoginButton from "../../components/shared/Log-Register/LoginButton";
+//import LoginButton from "../../components/shared/Log-Register/LoginButton";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const Home: React.FC = () => {
@@ -32,9 +32,9 @@ const Home: React.FC = () => {
   const [productos, setProductos] = useState<Articulo[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>(undefined);
   const { isAuthenticated, selectSucursal } = useAuth0Extended();
-  const { agregarAlCarrito } = useCart();
+  //const { agregarAlCarrito } = useCart();
   const [subCategoriaSelected, setSubCategoriaSelected] = useState<boolean>(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+ // const [isCartOpen, setIsCartOpen] = useState(false);
   const [promociones, setPromociones] = useState<Promocion[]>([]);
   const [showPromociones, setShowPromociones] = useState<boolean>(false);
   const { loginWithRedirect } = useAuth0();
@@ -165,27 +165,27 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleAgregarAlCarrito = (producto: Articulo) => {
-    agregarAlCarrito(producto);
-    setIsCartOpen(true);
-  };
+  // const handleAgregarAlCarrito = (producto: Articulo) => {
+  //   agregarAlCarrito(producto);
+  //   setIsCartOpen(true);
+  // };
 
-  const handleAgregarPromocionAlCarrito = (promocion: Promocion) => {
-    if (isAuthenticated) {
-      promocion.detallesPromocion.forEach((detalle) => {
-        for (let i = 0; i < detalle.cantidad; i++) {
-          agregarAlCarrito(detalle.articulo);
-        }
-      });
-      setIsCartOpen(true);
-    } else {
-      loginWithRedirect({
-        appState: {
-          returnTo: window.location.pathname,
-        },
-      });
-    }
-  };
+  // const handleAgregarPromocionAlCarrito = (promocion: Promocion) => {
+  //   if (isAuthenticated) {
+  //     promocion.detallesPromocion.forEach((detalle) => {
+  //       for (let i = 0; i < detalle.cantidad; i++) {
+  //         agregarAlCarrito(detalle.articulo);
+  //       }
+  //     });
+  //     setIsCartOpen(true);
+  //   } else {
+  //     loginWithRedirect({
+  //       appState: {
+  //         returnTo: window.location.pathname,
+  //       },
+  //     });
+  //   }
+  // };
 
   return (
     <div className="home-container">
@@ -287,7 +287,7 @@ const Home: React.FC = () => {
                             <span className="price-tag">$ {promocion.precioPromocional}</span>
                             <br />
                             <br />
-                            {isAuthenticated ? (
+                            {/* {isAuthenticated ? (
                               <Button
                                 variant="primary"
                                 className="add-to-cart-btn"
@@ -300,7 +300,7 @@ const Home: React.FC = () => {
                               </Button>
                             ) : (
                               <LoginButton />
-                            )}
+                            )} */}
                           </div>
                         </Carousel.Caption>
                       </div>
@@ -380,7 +380,7 @@ const Home: React.FC = () => {
                         <h3>{promocion.denominacion}</h3>
                         <p>{promocion.descripcionDescuento}</p>
                         <p className="price">Precio: ${promocion.precioPromocional}</p>
-                        {isAuthenticated ? (
+                        {/* {isAuthenticated ? (
                           <Button
                             variant="primary"
                             className="boton_add_cart"
@@ -390,7 +390,7 @@ const Home: React.FC = () => {
                           </Button>
                         ) : (
                           <LoginButton />
-                        )}
+                        )} */}
                       </div>
                     ))
                   : productos.length > 0
@@ -412,7 +412,7 @@ const Home: React.FC = () => {
                             : ""}
                         </p>
                         <p className="price">Precio: ${producto.precioVenta}</p>
-                        {isAuthenticated ? (
+                        {/* {isAuthenticated ? (
                           <Button
                             variant="primary"
                             className="boton_add_cart"
@@ -422,7 +422,7 @@ const Home: React.FC = () => {
                           </Button>
                         ) : (
                           <LoginButton />
-                        )}
+                        )} */}
                       </div>
                     ))
                   : selectedCategoryId && (
@@ -434,7 +434,7 @@ const Home: React.FC = () => {
         )}
       </div>
 
-      {isAuthenticated && (
+      {/* {isAuthenticated && (
         <>
           <Button
             onClick={() => setIsCartOpen(!isCartOpen)}
@@ -448,25 +448,25 @@ const Home: React.FC = () => {
               actualizarLista={() => fetchProductos(selectedCategoryId!)}
               isOpen={isCartOpen}
               setIsOpen={setIsCartOpen}
-            />
-          </div>
-          <div className={`cart-sidebar ${isCartOpen ? "open" : ""}`}>
+            /> */}
+          {/* </div> */}
+          {/* <div className={`cart-sidebar ${isCartOpen ? "open" : ""}`}>
             <button
               className="close-cart-btn"
               onClick={() => setIsCartOpen(false)}
             >
               ×
-            </button>
-            <Carrito
+            </button> */}
+            {/* <Carrito
               actualizarLista={() => fetchProductos(selectedCategoryId!)}
               isOpen={isCartOpen}
               setIsOpen={setIsCartOpen}
-            />
+            /> */}
           </div>
-        </>
+      //  </>
       )}
-    </div>
-  );
-};
+   // </div>
+ // );
+//};
 
 export default Home;
