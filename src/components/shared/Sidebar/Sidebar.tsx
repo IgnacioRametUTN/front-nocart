@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BsFillPeopleFill,
   BsBuilding,
@@ -8,6 +8,7 @@ import {
   BsPercent,
   BsCart,
   BsGraphUp,
+  BsPersonLinesFill
 } from "react-icons/bs";
 import { TbRulerMeasure } from "react-icons/tb";
 import { LuChefHat } from "react-icons/lu";
@@ -22,8 +23,9 @@ import logo from "../../../assets/images/Buen sabor logo 1.png";
 import LoginButton from "../Log-Register/LoginButton";
 import RegistroButton from "../Log-Register/RegistroButton";
 import BotonLogout from "../Log-Register/BotonLogout";
-import { BsPersonLinesFill } from "react-icons/bs";
 import { Rol } from "../../../entities/enums/Rol";
+import UsuarioService from "../../../services/UsuarioService";
+import Usuario from "../../../entities/DTO/Usuario/Usuario";
 
 interface RouteItem {
   path: string;
@@ -32,7 +34,7 @@ interface RouteItem {
 }
 
 type RoleRoutes = {
-  [key in Rol]?: RouteItem[];
+  [key in Rol]: RouteItem[]; // Cambiado para que todas las claves sean requeridas
 };
 
 const defaultRoutes: RouteItem[] = [
@@ -71,13 +73,60 @@ const roleRoutes: RoleRoutes = {
   [Rol.Cliente]: [
     { path: "/misPedidos", icon: MdDeliveryDining, label: "Mis Pedidos" },
   ],
+  [Rol.Empleado]: []
 };
 
 const Sidebar: React.FC = () => {
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState("");
+  const [userInfo, setUserInfo] = useState<Usuario | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [, setError] = useState<string | null>(null);
+  
   const location = useLocation();
-  const { isAuthenticated, user } = useAuth0();
+  const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (isAuthenticated && user) {
+        try {
+          setIsLoading(true);
+          const token = await getAccessTokenSilently();
+          
+          const exists = await UsuarioService.validarExistenciaUsuario(token);
+         
+          if (exists) {
+            const userData = await UsuarioService.login(token);
+            setUserInfo(userData);
+            console.log("Rol de usuario:", userInfo?.rol);  
+          } else {
+            const newUser: Usuario = {
+              id: 0,
+              username: user.name || '',
+              email: user.email || '',
+              rol: Rol.Cliente,
+              auth0Id: user.sub || '',
+            };
+            
+            const registeredUser = await UsuarioService.register(newUser, token);
+            setUserInfo(registeredUser);
+          }
+          
+          setError(null);
+        } catch (err) {
+          setError('Error al cargar la información del usuario');
+          console.error('Error fetching user info:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setUserInfo(null);
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserInfo();
+  }, [isAuthenticated, user, getAccessTokenSilently]);
 
   const handleMouseEnter = () => setExpanded(true);
   const handleMouseLeave = () => setExpanded(false);
@@ -86,13 +135,18 @@ const Sidebar: React.FC = () => {
     setSelected(path);
   };
 
-  const userRoles: Rol[] = user
-    ? (user["https://apiprueba/roles"] as Rol[])
-    : [];
-  const routesToDisplay =
-    isAuthenticated && userRoles.length > 0
-      ? roleRoutes[userRoles[0]] || []
-      : [];
+  const getRoutesToDisplay = (): RouteItem[] => {
+    if (!isAuthenticated || !userInfo?.rol) {
+      return defaultRoutes;
+    }
+    
+    const userRoleRoutes = roleRoutes[userInfo.rol] || [];
+    return [...defaultRoutes, ...userRoleRoutes];
+  };
+
+  if (isLoading) {
+    return <div className="loading-spinner">Cargando...</div>;
+  }
 
   return (
     <div
@@ -107,45 +161,35 @@ const Sidebar: React.FC = () => {
       </div>
 
       <hr className="text-white" />
-      <ul className="nav flex-column flex-grow-1 sidebar-content">
-        {defaultRoutes.map(({ path, icon: Icon, label }) => (
-          <li className="nav-item" key={path}>
-            <Link
-              to={path}
-              className={`nav-link text-white ${
-                location.pathname === path || selected === path ? "active" : ""
-              }`}
-              onClick={() => handleClick(path)}
-            >
-              <Icon size={24} className="me-2" />
-              <span className="nav-text">{label}</span>
-            </Link>
-          </li>
-        ))}
+      
+      <div className="d-flex flex-column h-100">
+        <ul className="nav flex-column flex-grow-1 sidebar-content">
+          {getRoutesToDisplay().map(({ path, icon: Icon, label }) => (
+            <li className="nav-item" key={path}>
+              <Link
+                to={path}
+                className={`nav-link text-white ${
+                  location.pathname === path || selected === path ? "active" : ""
+                }`}
+                onClick={() => handleClick(path)}
+              >
+                <Icon size={24} className="me-2" />
+                <span className="nav-text">{label}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
 
-        {routesToDisplay.map(({ path, icon: Icon, label }) => (
-          <li className="nav-item" key={path}>
-            <Link
-              to={path}
-              className={`nav-link text-white ${
-                location.pathname === path || selected === path ? "active" : ""
-              }`}
-              onClick={() => handleClick(path)}
-            >
-              <Icon size={24} className="me-2" />
-              <span className="nav-text">{label}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <div className="mt-auto">
-        {isAuthenticated ? (
-          <BotonLogout />
-        ) : (
-          <div>
-            <LoginButton /> <RegistroButton />
-          </div>
-        )}
+        <div className="mt-auto mb-3">
+          {isAuthenticated ? (
+            <BotonLogout />
+          ) : (
+            <div className="d-flex flex-column gap-2">
+              <LoginButton />
+              <RegistroButton />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -66,11 +66,25 @@ export default function PromotionTable() {
   }, [activeSucursal]);
 
   const handleSubmit = async (
+
     promocion: Promocion,
     files: File[]
+
+  
   ): Promise<void> => {
     try {
+      
+
       let response: Promocion;
+      console.log(promocion.sucursales)
+      promocion.detallesPromocion.forEach(detalle => {
+        detalle.articulo.categoria.subCategorias=[]
+
+      
+      });
+     
+     
+
       if (promocion.id !== 0) {
         response = await PromocionService.update(promocion.id, {
           ...promocion,

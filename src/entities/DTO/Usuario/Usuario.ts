@@ -7,3 +7,9 @@ export default class Usuario {
   email: string = '';
   rol?: Rol;
 }
+
+export class UsuarioDto{
+  email: string = '';
+  password : string = '';
+  rol: Rol = Rol.Cliente;
+}

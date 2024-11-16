@@ -1,14 +1,13 @@
-import React, {} from "react";
+import React, { useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import { Domicilio } from "../../../entities/DTO/Domicilio/Domicilio";
 import { Provincia } from "../../../entities/DTO/Domicilio/Provincia";
 import { ValidationErrors } from "../SucursalFormModal";
 import { Localidad } from "../../../entities/DTO/Domicilio/Localidad";
+import DomicilioService from "../../../services/DomicilioService";
 
 interface FormularioDomicilioProps {
   domicilio: Domicilio;
-  localidades: Localidad[];
-  provincias: Provincia[];
   handleChange: (field: Partial<Domicilio>) => void;
   errors: Partial<Record<keyof ValidationErrors, string>>;
 }
@@ -17,9 +16,44 @@ export const SucursalDomicilio: React.FC<FormularioDomicilioProps> = ({
   domicilio,
   handleChange,
   errors,
-  localidades,
-  provincias,
 }) => {
+  const [provincias, setProvincias] = useState<Provincia[]>([]);
+  const [localidades, setLocalidades] = useState<Localidad[]>([]);
+
+  useEffect(() => { 
+    const fetchProvincias = async () => {
+      try {
+        const provinciasData = await DomicilioService.getProvinciasByPais(1);
+        setProvincias(provinciasData);
+      } catch (error) {
+        console.error(
+          error instanceof Error ? error.message : "Error inesperado"
+        );
+      }
+    };
+
+    fetchProvincias();
+  }, []);
+
+  useEffect(() => {
+    const fetchLocalidades = async (idProvincia: number) => {
+      try {
+        const localidadesData = await DomicilioService.getLocalidadesByProvincia(idProvincia);
+        setLocalidades(localidadesData);
+      } catch (error) {
+        console.error(
+          error instanceof Error ? error.message : "Error inesperado"
+        );
+      }
+    };
+
+    if (domicilio.localidad.provincia.id) {
+      fetchLocalidades(domicilio.localidad.provincia.id);
+    } else {
+      setLocalidades([]);
+    }
+  }, [domicilio.localidad.provincia.id]);
+
   return (
     <div>
       <Form.Group controlId="calle">
@@ -42,9 +76,7 @@ export const SucursalDomicilio: React.FC<FormularioDomicilioProps> = ({
           onChange={(e) => handleChange({ numero: Number(e.target.value) })}
           required
         />
-        {errors.numero && (
-          <small className="text-danger">{errors.numero}</small>
-        )}
+        {errors.numero && <small className="text-danger">{errors.numero}</small>}
       </Form.Group>
 
       <Form.Group controlId="cp">
@@ -65,12 +97,11 @@ export const SucursalDomicilio: React.FC<FormularioDomicilioProps> = ({
           as="select"
           value={domicilio.localidad.provincia.id}
           onChange={(e) => {
+            const selectedProvincia = provincias.find((p) => p.id === Number(e.target.value));
             handleChange({
               localidad: {
                 ...domicilio.localidad,
-                provincia:
-                  provincias.find((p) => p.id === Number(e.target.value)) ||
-                  domicilio.localidad.provincia,
+                provincia: selectedProvincia || domicilio.localidad.provincia,
               },
             });
           }}
@@ -83,9 +114,7 @@ export const SucursalDomicilio: React.FC<FormularioDomicilioProps> = ({
             </option>
           ))}
         </Form.Control>
-        {errors.provincia && (
-          <small className="text-danger">{errors.provincia}</small>
-        )}
+        {errors.provincia && <small className="text-danger">{errors.provincia}</small>}
       </Form.Group>
 
       <Form.Group controlId="localidad">
@@ -93,35 +122,25 @@ export const SucursalDomicilio: React.FC<FormularioDomicilioProps> = ({
         <Form.Control
           as="select"
           value={domicilio.localidad.id || ""}
-          onChange={(e) =>
+          onChange={(e) => {
+            const selectedLocalidad = localidades.find(
+              (l) => l.id === Number(e.target.value)
+            );
             handleChange({
-              localidad: localidades.find(
-                (l) => l.id === Number(e.target.value)
-              ) ||
-                domicilio.localidad || {
-                  provincia: { id: 0, nombre: "" },
-                  nombre: "",
-                },
-            })
-          }
+              localidad: selectedLocalidad || domicilio.localidad,
+            });
+          }}
           required
           disabled={!domicilio.localidad.provincia.id}
         >
           <option value="">Selecciona una localidad</option>
-          {localidades
-            .filter(
-              (loc) =>
-                loc.provincia.id == domicilio.localidad.provincia.id
-            )
-            .map((loc) => (
-              <option key={loc.id} value={loc.id}>
-                {loc.nombre}
-              </option>
-            ))}
+          {localidades.map((loc) => (
+            <option key={loc.id} value={loc.id}>
+              {loc.nombre}
+            </option>
+          ))}
         </Form.Control>
-        {errors.localidad && (
-          <small className="text-danger">{errors.localidad}</small>
-        )}
+        {errors.localidad && <small className="text-danger">{errors.localidad}</small>}
       </Form.Group>
     </div>
   );

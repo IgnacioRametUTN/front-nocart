@@ -193,6 +193,7 @@ export const ArticuloManufacturadoModal = ({
 
       try {
         await handleSubmit(artManufacturado, files);
+        artManufacturado.categoria.subCategorias=[]
         onHide();
         showSuccess("Articulo guardado exitosamente");
       } catch (error) {

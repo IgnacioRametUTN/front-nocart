@@ -37,15 +37,17 @@ const ArticuloInsumoModal = ({
   const [loading, setLoading] = useState(false);
   const { showError, showSuccess } = useSnackbar();
 
-  const handleChange = (name: string, value: string | number | boolean) => {
+  const handleChange = (name: string, value: string | number | boolean) => { 
     setArticuloInsumo((prev) => {
       const updatedArticulo = { ...prev };
-
+  
       if (name === "categoria") {
         const categoriaSeleccionada = categorias.find(
           (c) => c.id === parseInt(value.toString())
         );
-        updatedArticulo.categoria = categoriaSeleccionada || null;
+        if (categoriaSeleccionada) {
+          updatedArticulo.categoria = categoriaSeleccionada; // Ensure it’s not null
+        }
       } else if (name === "unidadMedida") {
         const unidadSeleccionada = unidadesMedida.find(
           (um) => um.id === parseInt(value.toString())
@@ -54,10 +56,11 @@ const ArticuloInsumoModal = ({
       } else {
         (updatedArticulo as any)[name] = value;
       }
-
+  
       return updatedArticulo;
     });
   };
+  
 
   const handleBlur = (name: keyof ArticuloInsumo) => {
     setArticuloInsumo((prev) => {

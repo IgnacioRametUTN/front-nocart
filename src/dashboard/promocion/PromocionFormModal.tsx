@@ -118,9 +118,15 @@ export const PromocionFormModal = ({
       setIsLoading(true);
 
       try {
+        console.log(currentPromocion)
+        currentPromocion.detallesPromocion.forEach(detalle => {
+          detalle.articulo.categoria.subCategorias=[]
+        });
+        console.log(currentPromocion);
         await handleSubmit(currentPromocion, files);
+       
         onHide();
-        showSuccess("Sucursal guardada exitosamente");
+        showSuccess("Promocion guardada exitosamente");
       } catch (error) {
         if (error instanceof Error) {
           showError(error.message);
@@ -253,7 +259,7 @@ export const PromocionFormModal = ({
     <Modal show={true} size="lg" backdrop="static" keyboard={false} centered>
       <Modal.Header>
         <Modal.Title id="contained-modal-title-vcenter">
-          <h2>Formulario de Articulo Manufacturado</h2>
+          <h2>Formulario de Promociones</h2>
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -287,7 +293,8 @@ export const PromocionFormModal = ({
           <Button
             variant="primary"
             type="button"
-            onClick={save}
+            onClick={save }
+            
             disabled={isLoading}
           >
             {isLoading ? (

@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { Sucursal } from "../../entities/DTO/Sucursal/Sucursal";
 import { Imagen } from "../../entities/DTO/Imagen";
 import { SucursalDetails } from "./form/SucursalDetails";
@@ -9,9 +9,6 @@ import Button from "react-bootstrap/esm/Button";
 import Spinner from "react-bootstrap/esm/Spinner";
 import Modal from "react-bootstrap/esm/Modal";
 import Form from "react-bootstrap/esm/Form";
-import DomicilioService from "../../services/DomicilioService";
-import { Provincia } from "../../entities/DTO/Domicilio/Provincia";
-import { Localidad } from "../../entities/DTO/Domicilio/Localidad";
 import { useSnackbar } from "../../hooks/SnackBarProvider";
 
 export interface ValidationErrors {
@@ -36,8 +33,6 @@ export const SucursalFormModal = ({
   const [errors, setErrors] = useState<Partial<Record<keyof Sucursal, string>>>(
     {}
   );
-  const [provincias, setProvincias] = useState<Provincia[]>([]);
-  const [localidades, setLocalidades] = useState<Localidad[]>([]);
   const { showError, showSuccess } = useSnackbar();
   const [errorsDomicilio] = useState<
     Partial<Record<keyof ValidationErrors, string>>
@@ -70,54 +65,6 @@ export const SucursalFormModal = ({
       };
     });
   };
-
-  const fetchProvincias = async () => {
-    try {
-      const provincias = await DomicilioService.getProvinciasByPais(1);
-      setProvincias(provincias);
-    } catch (error) {
-      console.error(
-        error instanceof Error ? error.message : "Error inesperado"
-      );
-    }
-  };
-
-  const fetchLocalidades = async () => {
-    try {
-      const localidades = await DomicilioService.getLocalidadesByProvincia(0);
-      setLocalidades(localidades);
-    } catch (error) {
-      console.error(
-        error instanceof Error ? error.message : "Error inesperado"
-      );
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await fetchProvincias();
-        await fetchLocalidades();
-
-        // Establece la provincia seleccionada
-        if (sucursal.domicilio.localidad.provincia) {
-          setCurrentSucursal((prev) => ({
-            ...prev,
-            domicilio: {
-              ...prev.domicilio,
-              provincia: sucursal.domicilio.localidad.provincia,
-            },
-          }));
-        }
-      } catch (error) {
-        console.error(
-          error instanceof Error ? error.message : "Error inesperado"
-        );
-      }
-    };
-
-    fetchData();
-  }, []);
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -216,8 +163,6 @@ export const SucursalFormModal = ({
           })
         }
         errors={errorsDomicilio}
-        localidades={localidades}
-        provincias={provincias}
       />,
 
       <ImagenCarousel

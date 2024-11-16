@@ -8,14 +8,14 @@ import { Domicilio } from "../../../entities/DTO/Domicilio/Domicilio";
 interface FormularioDomicilioProps {
   onBack: () => void;
   onSubmit: (domicilio: Domicilio) => void;
-  showButtons?: boolean; // Propiedad para controlar la visibilidad de los botones
+  showButtons?: boolean;
   initialDomicilio: Domicilio;
 }
 
 const FormularioDomicilio: React.FC<FormularioDomicilioProps> = ({
   onBack,
   onSubmit,
-  showButtons = true, // Por defecto, los botones están visibles
+  showButtons = true,
   initialDomicilio,
 }) => {
   const [provincias, setProvincias] = useState<Provincia[]>([]);
@@ -44,7 +44,6 @@ const FormularioDomicilio: React.FC<FormularioDomicilioProps> = ({
       setCp(initialDomicilio.cp);
       setLocalidadId(initialDomicilio.localidad.id.toString());
       setProvinciaId(initialDomicilio.localidad.provincia.id.toString());
-  
     }
   }, [initialDomicilio]);
 
@@ -76,12 +75,10 @@ const FormularioDomicilio: React.FC<FormularioDomicilioProps> = ({
     e.preventDefault();
     setLoading(true);
 
-    // Crear instancia de Domicilio
     initialDomicilio.calle = calle;
     initialDomicilio.numero = numero;
     initialDomicilio.cp = cp;
 
-    // Crear instancia de Localidad y Provincia
     const provincia = new Provincia();
     provincia.id = Number(provinciaId);
     provincia.nombre =
@@ -134,7 +131,7 @@ const FormularioDomicilio: React.FC<FormularioDomicilioProps> = ({
         <Form.Label>Provincia</Form.Label>
         <Form.Control
           as="select"
-          value={initialDomicilio.localidad.provincia.id}
+          value={provinciaId} // Cambiado a provinciaId
           onChange={(e) => setProvinciaId(e.target.value)}
           required
         >

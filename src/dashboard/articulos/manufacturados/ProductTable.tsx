@@ -143,8 +143,26 @@ export default function ProductTable() {
   ) => {
     try {
       let response: ArticuloManufacturado;
+  
+      // Clear the subCategorias array of the category
+      newArticuloManufacturado.categoria.subCategorias = [];
+  
+      // Clear the subCategorias array of the insumos
+      newArticuloManufacturado.articuloManufacturadoDetalles = newArticuloManufacturado.articuloManufacturadoDetalles.map((detalle) => ({
+        ...detalle,
+        articuloInsumo: detalle.articuloInsumo
+          ? {
+              ...detalle.articuloInsumo,
+              categoria: {
+                ...detalle.articuloInsumo.categoria,
+                subCategorias: []
+              }
+            }
+          : null
+      }));
+  
       if (newArticuloManufacturado.id === 0) {
-        // Crear un nuevo ArticuloManufacturado
+        // Create a new ArticuloManufacturado
         response = await ProductServices.create(
           {
             ...newArticuloManufacturado,
@@ -155,7 +173,7 @@ export default function ProductTable() {
           activeSucursal
         );
       } else {
-        // Actualizar el ArticuloManufacturado existente
+        // Update the existing ArticuloManufacturado
         response = await ProductServices.update(newArticuloManufacturado.id, {
           ...newArticuloManufacturado,
           imagenes: newArticuloManufacturado.imagenes.filter(
@@ -163,16 +181,18 @@ export default function ProductTable() {
           ),
         });
       }
+  
       if (response) {
         const imagenes = await ProductServices.uploadFiles(response.id, files);
         response.imagenes = imagenes;
       }
+  
       setArticulosManufacturados((prev) => {
-        // Si el artículo tiene un id, significa que es una actualización
+        // If the article has an id, it's an update
         if (prev.some((art) => art.id === response.id)) {
           return prev.map((art) => (art.id === response.id ? response : art));
         } else {
-          // Si no tiene id, es un nuevo artículo, lo añadimos a la lista
+          // If it doesn't have an id, it's a new article, add it to the list
           return [...prev, response];
         }
       });
@@ -180,7 +200,7 @@ export default function ProductTable() {
       throw error;
     }
   };
-
+  
   return (
     <div className="container">
       <GenericButton

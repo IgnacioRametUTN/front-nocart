@@ -51,15 +51,16 @@ export const ArtMPricingAndCategories = ({
           <Form.Group className="mb-3" controlId="formCategorySelect">
             <Form.Label>Categoría</Form.Label>
             <Form.Select
-              value={articuloManufacturado.categoria?.id || ""}
-              onChange={(e) =>
+              value={articuloManufacturado.categoria?.id}
+              onChange={(e) => 
                 handleChange({
                   categoria:
                     categorias.find(
                       (cat) => cat.id === Number(e.target.value)
-                    ) || null,
+                    ) || undefined, // Use undefined instead of null
                 })
               }
+              
               isInvalid={!!errors.categoria}
             >
               <option value="">Seleccione una categoría...</option>

@@ -74,16 +74,23 @@ export default function ArticuloInsumoPage() {
   }, [categoria, unidadMedida, searchedDenominacion]);
 
   const handleSaveUpdate = async (art: ArticuloInsumo, files: File[]) => {
+    console.log(art.categoria);
+   
     try {
+      
       let response: ArticuloInsumo;
+      console.log(art.categoria);
+      art.categoria.subCategorias=[]
 
       if (art.id === 0) {
+        
         // Artículo nuevo
         response = await ArticuloInsumoService.crearArticuloInsumo(
           {
             ...art,
             imagenes: art.imagenes.filter(
               (imagen) => !imagen.url.includes("blob")
+              
             ),
           },
           activeSucursal

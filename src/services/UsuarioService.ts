@@ -1,4 +1,5 @@
-import Usuario from "../entities/DTO/Usuario/Usuario";
+
+import Usuario, { UsuarioDto } from "../entities/DTO/Usuario/Usuario";
 import { Rol } from "../entities/enums/Rol";
 
 class UsuarioService {
@@ -45,6 +46,23 @@ class UsuarioService {
     }
   }
 
+  static async createUser(usuario: UsuarioDto, token: string): Promise<Usuario> {
+    try {
+      const responseData = await this.request('/create', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(usuario),
+      });
+      return responseData as Usuario;
+    } catch (error) {
+      console.error('Error al crear usuario:', error);
+      throw error;
+    }
+  }
+
   static async validarExistenciaUsuario(token: string): Promise<boolean> {
     try {
       const responseData = await this.request(`/validar`, {
@@ -56,35 +74,6 @@ class UsuarioService {
       return responseData;
     } catch (error) {
       console.error('Error al validar existencia usuario:', error);
-      throw error;
-    }
-  }
-
-  static async deleteUsuario(id: number, token: string): Promise<void> {
-    try {
-      await this.request(`/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
-    } catch (error) {
-      console.error('Error al eliminar usuario:', error);
-      throw error;
-    }
-  }
-
-  static async getAll(token: string): Promise<Usuario[]> {
-    try {
-      const responseData = await this.request('', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
-      return responseData;
-    } catch (error) {
-      console.error('Error al obtener todos los usuarios:', error);
       throw error;
     }
   }
@@ -106,59 +95,20 @@ class UsuarioService {
 
   static async updateUsuarioRol(id: number, newRol: Rol, token: string): Promise<Usuario> {
     try {
-      // Actualiza el rol en la base de datos local
-      const updatedUser = await this.request(`/usuarios/${id}/rol`, {
+      // Enviamos el rol directamente como texto en el body
+      const responseData = await this.request(`/usuarios/${id}/rol`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'text/plain'  // Cambiamos el Content-Type a text/plain
         },
-        body: newRol, // Envía el rol directamente como JSON
-      }) as Usuario;
-
-      
-      const managementToken = await this.getAuth0ManagementToken();
-
-      // Actualiza el rol en Auth0
-      const auth0UserId = updatedUser.auth0Id;
-      await fetch(`https://${import.meta.env.VITE_AUTH0_DOMAIN}/api/v2/users/${auth0UserId}/roles`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${managementToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          roles: [newRol] 
-        }),
+        body: newRol  // Enviamos el rol directamente como string
       });
-
-      return updatedUser;
+      return responseData as Usuario;
     } catch (error) {
       console.error('Error al actualizar el rol del usuario:', error);
       throw error;
     }
-  }
-
-  private static async getAuth0ManagementToken(): Promise<string> {
-    const response = await fetch(`https://${import.meta.env.VITE_AUTH0_DOMAIN}/oauth/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        client_id: import.meta.env.VITE_AUTH0_MANAGEMENT_CLIENT_ID,
-        client_secret: import.meta.env.VITE_AUTH0_MANAGEMENT_CLIENT_SECRET,
-        audience: `https://${import.meta.env.VITE_AUTH0_DOMAIN}/api/v2/`,
-        grant_type: 'client_credentials',
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al obtener el token de Auth0 Management API');
-    }
-
-    const data = await response.json();
-    return data.access_token;
   }
 }
 

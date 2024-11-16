@@ -3,6 +3,7 @@ import { TipoPromocion } from "../../enums/TipoPromocion";
 import { Articulo } from "../Articulo/Articulo";
 import { Base } from "../Base";
 import { Imagen } from "../Imagen";
+import { Sucursal } from "../Sucursal/Sucursal";
 
 export class Promocion extends Base {
   id: number = 0;
@@ -12,6 +13,7 @@ export class Promocion extends Base {
   fechaHasta!: Date;
   horaDesde!: string;
   horaHasta!: string;
+  sucursales: Sucursal[] = [];
   descripcionDescuento: string = '';
   precioPromocional: number = 0;
   detallesPromocion: PromocionDetalle[] = [];

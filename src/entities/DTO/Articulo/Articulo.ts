@@ -8,6 +8,7 @@ export class Articulo extends Base {
     precioVenta: number = 0;
     unidadMedida: UnidadMedida | null = null;
     imagenes: Imagen[] = [];
-    categoria: Categoria | null = null;
+    categoria: Categoria  = new Categoria();
+   // subCategorias: Categoria[] = [];
     //promocionDetalle: PromocionDetalle[] | null = null;
 }
