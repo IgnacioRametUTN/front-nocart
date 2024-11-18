@@ -1,5 +1,9 @@
+import { useNavigate } from "react-router-dom";
+
+const navigate = useNavigate();
 const CallbackPage = () => {
-  return <div></div>;
+  return navigate("/")
+
 };
 
 export default CallbackPage;

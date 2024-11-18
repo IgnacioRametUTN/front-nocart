@@ -43,6 +43,7 @@ const ClienteFormulario: React.FC = () => {
         body: JSON.stringify(cliente),
       });
       alert("Datos actualizados correctamente.");
+      window.location.reload();
     } catch (error) {
       console.error("Error al actualizar los datos del cliente:", error);
     }

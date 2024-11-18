@@ -336,6 +336,17 @@ const ArticuloInsumoModal = ({
                     }
                   />
                 </Form.Group>
+                <Form.Group as={Col} controlId="formElaborar">
+                  <Form.Check
+                    name="esParaElaborar"
+                    type="checkbox"
+                    label="Es para elaborar"
+                    checked={articuloInsumo?.esParaElaborar}
+                    onChange={({ target: { name, checked } }) =>
+                      handleChange(name, checked)
+                    }
+                  />
+                </Form.Group>
               </Row>
 
               <Row>

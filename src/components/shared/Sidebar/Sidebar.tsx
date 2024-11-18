@@ -27,6 +27,7 @@ import { Rol } from "../../../entities/enums/Rol";
 import UsuarioService from "../../../services/UsuarioService";
 import Usuario from "../../../entities/DTO/Usuario/Usuario";
 
+
 interface RouteItem {
   path: string;
   icon: IconType;
@@ -34,7 +35,7 @@ interface RouteItem {
 }
 
 type RoleRoutes = {
-  [key in Rol]: RouteItem[]; // Cambiado para que todas las claves sean requeridas
+  [key in Rol]: RouteItem[];
 };
 
 const defaultRoutes: RouteItem[] = [
@@ -80,38 +81,22 @@ const Sidebar: React.FC = () => {
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState("");
   const [userInfo, setUserInfo] = useState<Usuario | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [, setError] = useState<string | null>(null);
   
   const location = useLocation();
   const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
-
+//Autenficacion
   useEffect(() => {
     const fetchUserInfo = async () => {
       if (isAuthenticated && user) {
         try {
-          setIsLoading(true);
+      setIsLoading(true);
           const token = await getAccessTokenSilently();
-          
-          const exists = await UsuarioService.validarExistenciaUsuario(token);
-         
-          if (exists) {
-            const userData = await UsuarioService.login(token);
+          const userData = await UsuarioService.login(token);
+           
             setUserInfo(userData);
-            console.log("Rol de usuario:", userInfo?.rol);  
-          } else {
-            const newUser: Usuario = {
-              id: 0,
-              username: user.name || '',
-              email: user.email || '',
-              rol: Rol.Cliente,
-              auth0Id: user.sub || '',
-            };
-            
-            const registeredUser = await UsuarioService.register(newUser, token);
-            setUserInfo(registeredUser);
-          }
-          
+      
           setError(null);
         } catch (err) {
           setError('Error al cargar la información del usuario');
@@ -136,10 +121,10 @@ const Sidebar: React.FC = () => {
   };
 
   const getRoutesToDisplay = (): RouteItem[] => {
-    if (!isAuthenticated || !userInfo?.rol) {
-      return defaultRoutes;
+    if (!userInfo?.rol) {
+      return defaultRoutes; // Solo mostrar "Tienda" si el usuario no tiene rol.
     }
-    
+
     const userRoleRoutes = roleRoutes[userInfo.rol] || [];
     return [...defaultRoutes, ...userRoleRoutes];
   };
